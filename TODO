@@ -1,0 +1,14 @@
+
+
+!start Terminal with '.terminal.running' file created
+!remove '.terminal.running' when Terminal shutdown
+!fork and run command
+!output output of forked process into '.terminal.output'
+
+!detect Terminal running in directory or parent directory
+!write Terminal command file(full path) and read the output to output
+!shutdown process when the '.terminal.input' file is gone
+
+time out? how terminal protects itself
+logger
+require file reload problem

@@ -1,0 +1,1 @@
+STDERR.print "error output"

@@ -1,0 +1,9 @@
+.DS_Store
+.dtr_*
+.git
+.mm*
+.terminal*
+pkg
+html
+log
+Manifest

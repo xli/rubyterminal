@@ -1,0 +1,1 @@
+STDOUT.print "output from simple command"
