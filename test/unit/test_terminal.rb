@@ -1,13 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/../test_helper')
-require 'terminal'
 
 class TestTerminal < Test::Unit::TestCase
 
   def test_start_terminal_with_status_file_created
     with_test_dir do
+      running = false
       Terminal.start do
-        assert File.exists?('.terminal.running')
+        running = File.exists?('.terminal.running')
       end
+      assert running
     end
   end
 
