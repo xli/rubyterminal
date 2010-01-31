@@ -51,21 +51,23 @@ My project got problem with spending too much time to wait for rails test proces
 My test just need 1 sec to run, but the process need 3 sec to launch. As many time as I
 run my test, as much time as I waste on waiting on launching the process.
 
-As a big project, it's environment probably is complicated, you should have a config/environment.rb
-to setup your Rails project environment as you need, but it maybe not what you want to
-cache in RubyTerminal, because there maybe lot of models has been loaded and cache those
-classes may cause you restart RubyTerminal again and again.
-So, I need provide a new config/const_environment.rb to describe everything my project need
-and no need to reload while I am running tests in development usually. And then require it
-at first line in config/environment.rb.
-Also, I added the following code as first line code of config/const_environment.rb
+As a big project, it's environment probably is complicated. You should have a config/environment.rb
+to setup your Rails project environment as you need, but it maybe not all what you want to
+cache in RubyTerminal, because there maybe lot of models have been loaded, and cache those
+classes may cause you restart RubyTerminal again and again during development.
+
+So, I think it's better to provide an independent environment initialization script called
+'test_const_environment.rb' inside 'test' directory. It requires everything could be cached
+for my test while I am running tests in development usually. There maybe some duplication
+with config/environment.rb, you could do some refactoring to get it better.
+Also, I added the following code as first line code of test/test_const_environment.rb
 
   require 'ert'
 
-Then, start RubyTerminal in my project root directory with my config/const_environment.rb
+Then, start RubyTerminal in my project root directory with my test/test_const_environment.rb
 when I am developing.
 
-  rt config/const_environment.rb
+  rt test/test_const_environment.rb
 
 Done. Develop as usual.
 
