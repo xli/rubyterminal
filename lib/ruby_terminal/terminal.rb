@@ -34,22 +34,21 @@ module RubyTerminal
         logger << pretty_command(programfile, argv) << "\n"
 
         pid = fork do
+          do_fork(programfile, argv)
+        end
+        thread = Thread.start do
           begin
-            do_fork(programfile, argv)
+            TerminalOutput.open_for_read do |output|
+              output.output_until_execution_finished(input, logger)
+            end
           ensure
-            input.destroy
+            Process.kill 'TERM', pid
           end
         end
-        begin
-          TerminalOutput.open_for_read do |output|
-            output.output_until_execution_finished(input, logger)
-          end
-        ensure
-          Process.kill("TERM", pid)
-          Process.wait
-        end
+        Process.wait
+        Thread.kill thread
 
-        logger << "=> #{$?.exitstatus}\n"
+        logger << "=> exit status: #{$?.exitstatus.inspect}\n"
         $?.exitstatus
       end
     end

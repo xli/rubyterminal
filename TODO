@@ -11,8 +11,9 @@
 !give a warning when start rt without ruby environment script
 !a command line execution solution: ert test/unit/xx_test.rb
 
-time out? how terminal protects itself with dead execution?
+!time out? how terminal protects itself with dead execution?
+
+allow user to input in terminal?
 test: require file reload problem
 how about command has "\\n"
 how to integrate with rake? needed?
-allow user to input in terminal?
