@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'ruby_terminal/terminal_input'
 
 module RubyTerminal
   module Terminal
@@ -22,43 +23,35 @@ module RubyTerminal
     end
 
     def process(logger=[])
-      return unless File.exists?('.terminal.input')
-      begin
-        commands = File.open('.terminal.input') do |file|
-          file.read
-        end.split("\n")
+      TerminalInput.get do |input|
+        programfile, argv = input.read
+        logger << pretty_command(programfile, argv) << "\n"
 
-        logger << pretty_command(commands) << "\n"
-
-        fork { do_fork(commands) }
+        fork { do_fork(programfile, argv) }
         Process.wait
 
         logger << "=> #{$?.exitstatus}\n"
         $?.exitstatus
-      ensure
-        FileUtils.rm_rf '.terminal.input'
       end
     end
 
-    def do_fork(commands)
+    def do_fork(programfile, argv)
       $stdout = File.open('.terminal.output', 'w')
       STDOUT.reopen($stdout)
       STDERR.reopen($stdout)
+      $0 = programfile
       ARGV.clear
-      $0 = commands[0]
-      commands[1..-1].each do |arg|
-        ARGV << arg.gsub(/\\n/, "\n")
-      end
+      ARGV.concat argv
       load($0)
     rescue Exception => e
-      $stderr << e.message
-      $stderr << e.backtrace.join("\n")
+      $stderr.puts e.message
+      $stderr.puts e.backtrace.join("\n")
     ensure
       $stdout.close
     end
 
-    def pretty_command(commands)
-      commands.collect{|c| c.include?(' ') ? c.inspect : c}.join(' ')
+    def pretty_command(programfile, argv)
+      ([programfile] + argv).collect{|c| c.include?(' ') ? c.inspect : c}.join(' ')
     end
 
   end

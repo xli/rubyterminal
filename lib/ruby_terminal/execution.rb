@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'ruby_terminal/terminal_input'
 
 module RubyTerminal
   module Execution
@@ -42,11 +43,9 @@ module RubyTerminal
         output_file_path = File.expand_path('.terminal.output')
         FileUtils.rm_rf(output_file_path)
         FileUtils.touch(output_file_path)
-        input_file_path = File.expand_path('.terminal.input')
 
-        cmd = [progromfile] + argv.collect{|arg| arg.gsub(/\n/, '\\n')}
         File.open(output_file_path) do |output|
-          input = File.open(input_file_path, 'w') { |file| file << cmd.join("\n") }
+          input = TerminalInput.write(progromfile, argv)
           yield(input, output) if block_given?
         end
       end
