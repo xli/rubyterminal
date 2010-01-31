@@ -37,6 +37,7 @@ module RubyTerminal
       return if self.ignore_execution_request?
       return unless terminal_running_dir = running_dir
 
+      progromfile = File.expand_path(progromfile)
       Dir.chdir(terminal_running_dir) do
         output_file_path = File.expand_path('.terminal.output')
         FileUtils.rm_rf(output_file_path)

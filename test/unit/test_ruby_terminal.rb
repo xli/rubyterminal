@@ -2,13 +2,22 @@ require File.expand_path(File.dirname(__FILE__) + '/../test_helper')
 
 class TestRubyTerminal < Test::Unit::TestCase
 
+  def setup
+    base = File.expand_path(File.dirname(__FILE__))
+    @simple_command_file_path = File.join(base, 'simple_command.rb')
+    @command_with_args_file_path = File.join(base, 'command_with_args.rb')
+    @test_ruby_terminal_file_path = File.join(base, 'test_ruby_terminal.rb')
+    @stderr_output_command_file_path = File.join(base, 'stderr_output_command.rb')
+    @output_dollor_zero_command_file_path = File.join(base, 'output_dollor_zero_command.rb')
+  end
+
   def test_happy_path
     with_test_dir do
       RubyTerminal.start do
         fork do
           loop { break if RubyTerminal.process }
         end
-        RubyTerminal.execute(File.dirname(__FILE__) + "/test_ruby_terminal.rb", [])
+        RubyTerminal.execute(@test_ruby_terminal_file_path, [])
         Process.wait # wait until the forked process finish, otherwize the tests folowing would be failed
       end
     end
@@ -34,7 +43,7 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_process_input_and_output
     with_test_dir do
       RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + "/simple_command.rb")
+        RubyTerminal.input(@simple_command_file_path)
         output = "output from simple command"
         assert_process_output(output)
       end
@@ -44,7 +53,7 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_process_error_command
     with_test_dir do
       RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + "/not_found")
+        RubyTerminal.input("not_found")
         RubyTerminal.process
         assert read_output_content
       end
@@ -54,7 +63,7 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_should_remove_input_file_after_process_finished
     with_test_dir do
       File.open '.terminal.input', 'w' do |file|
-        file << File.dirname(__FILE__) + '/simple_command.rb'
+        file << @simple_command_file_path
       end
       RubyTerminal.process
       assert !File.exists?('.terminal.input')
@@ -64,7 +73,7 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_should_take_care_command_args
     with_test_dir do
       RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + "/command_with_args.rb", ["args"])
+        RubyTerminal.input(@command_with_args_file_path, ["args"])
         output = "args"
         assert_process_output(output)
       end
@@ -74,9 +83,8 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_output_should_include_stderr_output_too
     with_test_dir do
       RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + '/stderr_output_command.rb')
-        output = "error output"
-        assert_process_output(output)
+        RubyTerminal.input(@stderr_output_command_file_path)
+        assert_process_output("error output")
       end
     end
   end
@@ -102,12 +110,25 @@ class TestRubyTerminal < Test::Unit::TestCase
     end
   end
 
+  def test_should_be_able_to_run_in_sub_dir_of_terminal_launching_dir
+    with_test_dir do
+      Dir.mkdir 'child'
+      RubyTerminal.start do
+        Dir.chdir 'child' do
+          FileUtils.cp(@simple_command_file_path, 'simple_command_copy.rb')
+          RubyTerminal.input('./simple_command_copy.rb')
+        end
+        assert_process_output "output from simple command"
+      end
+    end
+  end
+
   def test_should_return_input_and_output_file_after_created_input_command_for_terminal
     with_test_dir do
       RubyTerminal.start do
         input_file = nil
         output_file = nil
-        RubyTerminal.input(File.dirname(__FILE__) + '/simple_command.rb') do |input, output|
+        RubyTerminal.input(@simple_command_file_path) do |input, output|
           input_file = input
           output_file = output
         end
@@ -122,7 +143,7 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_should_not_call_block_when_no_terminal_running_after_called_input
     Dir.chdir('/tmp') do
       block_called = false
-      RubyTerminal.input(File.dirname(__FILE__) + '/simple_command.rb') do |input, output|
+      RubyTerminal.input(@simple_command_file_path) do |input, output|
         block_called = true
       end
       assert !block_called
@@ -132,7 +153,7 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_input_argv_with_blank_string
     with_test_dir do
       RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + '/command_with_args.rb', ['a r g'])
+        RubyTerminal.input(@command_with_args_file_path, ['a r g'])
         assert_process_output("a r g")
       end
     end
@@ -141,7 +162,7 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_input_argv_with_slash_n_string
     with_test_dir do
       RubyTerminal.start do
-        intput_file = RubyTerminal.input(File.dirname(__FILE__) + '/command_with_args.rb', ["a\nr\ng"])
+        intput_file = RubyTerminal.input(@command_with_args_file_path, ["a\nr\ng"])
         assert_process_output("a\nr\ng")
       end
     end
@@ -150,8 +171,8 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_different_command_should_not_mix_outputs
     with_test_dir do
       RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + '/simple_command.rb')
-        RubyTerminal.input(File.dirname(__FILE__) + '/command_with_args.rb', 'output from second command')
+        RubyTerminal.input(@simple_command_file_path)
+        RubyTerminal.input(@command_with_args_file_path, 'output from second command')
         assert_process_output("output from second command")
       end
     end
@@ -170,9 +191,9 @@ class TestRubyTerminal < Test::Unit::TestCase
   def test_should_update_dollor_zero_for_process
     with_test_dir do
       RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + '/output_dollor_zero_command.rb')
+        RubyTerminal.input(@output_dollor_zero_command_file_path)
         RubyTerminal.process
-        assert_process_output(File.dirname(__FILE__) + "/output_dollor_zero_command.rb")
+        assert_process_output(@output_dollor_zero_command_file_path)
       end
     end
   end
