@@ -1,7 +1,7 @@
 require 'echoe'
 
-Echoe.new('rubyterminal', '0.0.1') do |p|
-  p.description     = "RubyTerminal arms to prepare a ruby runtime environment for a program to launch new ruby process instantly."
+Echoe.new('rubyterminal', '1.0.0') do |p|
+  p.description     = "RubyTerminal prepares a ruby runtime environment for launching new ruby process instantly."
   p.url             = "https://github.com/xli/rubyterminal"
   p.author          = "Li Xiao"
   p.email           = "iam@li-xiao.com"

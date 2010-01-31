@@ -10,7 +10,6 @@
 !shutdown process when the '.terminal.input' file is gone
 !give a warning when start rt without ruby environment script
 !a command line execution solution: ert test/unit/xx_test.rb
-
 !time out? how terminal protects itself with dead execution?
 
 allow user to input in terminal?

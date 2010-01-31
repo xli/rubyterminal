@@ -3,7 +3,7 @@ require 'ruby_terminal/execution'
 
 # for doc, please take a look README
 module RubyTerminal
-  VERSION = '0.0.1'
+  VERSION = '1.0.0'
   extend Terminal
   extend Execution
 end

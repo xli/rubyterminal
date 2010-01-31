@@ -1,10 +1,10 @@
 
-= RubyTerminal -- A program communicating ruby terminal
+= RubyTerminal -- A ruby environment terminal for program
 
-RubyTerminal arms to prepare a ruby runtime environment for a program to launch new ruby
-process instantly.
-Anytime you got problem of spending too much time on launching ruby process frequently,
-RubyTerminal could be your choice.
+RubyTerminal prepares a ruby runtime environment for launching new ruby process instantly.
+For example, a big Rails project may need 5 seconds to launch a test process even you just
+run simple method test which just cost 0.1 second when you are doing TDD. RubyTerminal can
+help you get rid of this kind waiting.
 
 == How it works
 

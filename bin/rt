@@ -6,8 +6,11 @@ rescue LoadError
   require 'ruby_terminal'
 end
 
+
 RubyTerminal.start do
   puts "Start at #{Dir.pwd}"
+  puts "Ctrl-C to shutdown"
   RubyTerminal.load_environment(ARGV)
   RubyTerminal.loop_process(STDOUT)
 end
+puts ''
