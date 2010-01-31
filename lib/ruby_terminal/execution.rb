@@ -42,8 +42,6 @@ module RubyTerminal
         output.output_until_execution_finished(input, STDOUT)
         yield if block_given? # for command to execute 'exit'
       end
-    rescue SignalException
-      # ignore
     end
 
     # detect RubyTerminal runtime launching directory
