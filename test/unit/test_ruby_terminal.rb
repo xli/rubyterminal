@@ -168,6 +168,16 @@ class TestRubyTerminal < Test::Unit::TestCase
     end
   end
 
+  #TODO It's reaaly low priority to fix
+  def xtest_input_argv_with_slash_slash_n_string
+    with_test_dir do
+      RubyTerminal.start do
+        intput_file = RubyTerminal.input(@command_with_args_file_path, ["a\\nr\\ng"])
+        assert_process_output("a\\nr\\ng")
+      end
+    end
+  end
+
   def test_different_command_should_not_mix_outputs
     with_test_dir do
       RubyTerminal.start do
