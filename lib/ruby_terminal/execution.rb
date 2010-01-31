@@ -35,10 +35,10 @@ module RubyTerminal
 
     def input(progromfile, argv=[])
       return if self.ignore_execution_request?
-      return unless terminal_running_dir = running_dir
+      return unless running_dir
 
       progromfile = File.expand_path(progromfile)
-      Dir.chdir(terminal_running_dir) do
+      Dir.chdir(running_dir) do
         output_file_path = File.expand_path('.terminal.output')
         FileUtils.rm_rf(output_file_path)
         FileUtils.touch(output_file_path)
@@ -54,7 +54,7 @@ module RubyTerminal
 
     def execute(progromfile, argv, logger=[])
       input(progromfile, argv) do |input, output|
-        logger << "Running in Ruby Terminal\n"
+        logger << "Running in RubyTerminal(#{running_dir})\n"
         while(File.exists?(input.path)) do
           sleep(0.01)
           if o = output.read

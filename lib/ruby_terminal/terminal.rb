@@ -9,9 +9,14 @@ module RubyTerminal
       FileUtils.rm_rf '.terminal.running'
     end
 
-    def loop_process(logger=[])
+    def loop_process(logger)
+      logger << ">> "
+      logger.flush
       loop do
-        process(logger)
+        if process(logger)
+          logger << ">> "
+          logger.flush
+        end
         sleep(0.1)
       end
     end
@@ -23,7 +28,7 @@ module RubyTerminal
           file.read
         end.split("\n")
 
-        logger << ">> #{pretty_command(commands)}\n"
+        logger << pretty_command(commands) << "\n"
 
         fork { do_fork(commands) }
         Process.wait
