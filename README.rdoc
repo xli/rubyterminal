@@ -13,27 +13,27 @@ Start RubyTerminal by the following command after installed rubyterminal gem:
   rt <ruby_environment_script_file_path>
 
 After RubyTerminal started, it will create a '.terminal.running' file to mark it's launching
-directory, the file would be deleted after RubyTerminal shutdown. Then RubyTerminal starts
-look for a file called '.terminal.input' in it's launching directory and read it's content
-as command to execute in a forked process. The output of command execution would be put
-into another file called '.terminal.output' in same directory.
+directory, the file would be deleted after RubyTerminal shutdown. 
+Then RubyTerminal starts look for a file called '.terminal.input' in it's launching directory
+and read it's content as command to execute in a forked process. The output of command
+execution would be put into another file called '.terminal.output' in the same directory.
 
 There are two model to create a '.terminal.input' by RubyTerminal, one is a command could be
 used in a terminal called 'ert', another one is a ruby file could be loaded in a ruby script.
 
-=== Execute ruby script in RubyTerminal inside the script
+=== Execute ruby script in RubyTerminal by injecting 'ert' inside the script
 
 Put the following code in first line code would be run before your ruby code, e.g. first
 line in test_helper.rb:
 
-  require 'ruby_terminal/execution'
+  require 'ert'
 
 When RubyTerminal is detected by the script, it will create a '.terminal.input' file with
 current script execution command and arguments, then wait for execution output and exit
 when the '.terminal.input' file gone, which is deleted by the RubyTerminal usually after
 the execution finished.
 
-=== Execute ruby script in a terminal ert
+=== Execute ruby script in RubyTerminal by a terminal ert command
 
 ert has same usage with ruby expect you should not type in 'ruby', for example:
 
@@ -53,7 +53,7 @@ run my test, as much time as I waste on waiting on launching the process.
 
 Setup my project by adding one line code into first line code into test_helper.rb
 
-  require 'ruby_terminal/execution'
+  require 'ert'
 
 Then, Start RubyTerminal in my project root directory with my test environment file test_helper.rb
 when I am developing.
