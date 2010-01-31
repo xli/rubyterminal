@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+begin
+  require 'ruby_terminal'
+rescue LoadError
+  require 'rubygems'
+  require 'ruby_terminal'
+end
+
+RubyTerminal.start do
+  puts "Start at #{Dir.pwd}"
+  RubyTerminal.load_environment(ARGV)
+  RubyTerminal.loop_process
+end

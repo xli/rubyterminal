@@ -13,4 +13,7 @@ require file reload problem
 time out? how terminal protects itself with dead execution?
 logger: acts as a terminal
 test could not run by rake
-
+how about command has "\\n"
+a command line execution solution: ert test/unit/xx_test.rb
+give a warning when start rt without ruby environment script
+how to integrate with rake? needed?

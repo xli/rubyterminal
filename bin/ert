@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+begin
+  require 'ruby_terminal'
+rescue LoadError
+  require 'rubygems'
+  require 'ruby_terminal'
+end
+
+RubyTerminal.execute(ARGV[0], ARGV[1..-1]) do
+  exit
+end

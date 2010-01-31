@@ -1,6 +1,6 @@
 $LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
-require 'terminal/execution'
-Terminal.terminal_process = false
+require 'ert'
+RubyTerminal.ignore_execution_request = false
 
 require 'test/unit'
 
