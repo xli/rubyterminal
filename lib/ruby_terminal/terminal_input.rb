@@ -43,6 +43,10 @@ module RubyTerminal
       FileUtils.rm_rf path
     end
 
+    def executing?
+      File.exists? path
+    end
+
     def path
       @file.path
     end

@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'ruby_terminal/terminal_input'
+require 'ruby_terminal/terminal_output'
 
 module RubyTerminal
   module Execution
@@ -40,11 +41,7 @@ module RubyTerminal
 
       progromfile = File.expand_path(progromfile)
       Dir.chdir(running_dir) do
-        output_file_path = File.expand_path('.terminal.output')
-        FileUtils.rm_rf(output_file_path)
-        FileUtils.touch(output_file_path)
-
-        File.open(output_file_path) do |output|
+        TerminalOutput.renew do |output|
           input = TerminalInput.write(progromfile, argv)
           yield(input, output) if block_given?
         end
@@ -53,8 +50,8 @@ module RubyTerminal
 
     def execute(progromfile, argv, logger=[])
       input(progromfile, argv) do |input, output|
-        logger << "Running in RubyTerminal(#{running_dir})\n"
-        while(File.exists?(input.path)) do
+        logger << "Running in RubyTerminal (#{running_dir})\n"
+        while(input.executing?) do
           sleep(0.01)
           if o = output.read
             print o

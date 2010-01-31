@@ -36,7 +36,7 @@ module RubyTerminal
     end
 
     def do_fork(programfile, argv)
-      $stdout = File.open('.terminal.output', 'w')
+      $stdout = TerminalOutput.open_for_write
       STDOUT.reopen($stdout)
       STDERR.reopen($stdout)
       $0 = programfile
