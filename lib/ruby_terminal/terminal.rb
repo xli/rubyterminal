@@ -23,12 +23,12 @@ module RubyTerminal
           file.read
         end.split("\n")
 
-        logger << ">> #{pretty_command(commands)}"
+        logger << ">> #{pretty_command(commands)}\n"
 
         fork { do_fork(commands) }
         Process.wait
 
-        logger << "=> #{$?.exitstatus}"
+        logger << "=> #{$?.exitstatus}\n"
         $?.exitstatus
       ensure
         FileUtils.rm_rf '.terminal.input'
