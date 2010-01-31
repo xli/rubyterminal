@@ -3,9 +3,15 @@ require 'ruby_terminal/terminal_input'
 
 module RubyTerminal
   module Terminal
+
+    # A terminal is started from here.
+    # Start method takes care of terminal running status marker
+    # and ignores SystemExit and SignalException for output
     def start
       FileUtils.touch '.terminal.running'
       yield if block_given?
+    rescue SignalException
+      # ignore
     ensure
       FileUtils.rm_rf '.terminal.running'
     end
@@ -27,8 +33,21 @@ module RubyTerminal
         programfile, argv = input.read
         logger << pretty_command(programfile, argv) << "\n"
 
-        fork { do_fork(programfile, argv) }
-        Process.wait
+        pid = fork do
+          begin
+            do_fork(programfile, argv)
+          ensure
+            input.destroy
+          end
+        end
+        begin
+          TerminalOutput.open_for_read do |output|
+            output.output_until_execution_finished(input, logger)
+          end
+        ensure
+          Process.kill("TERM", pid)
+          Process.wait
+        end
 
         logger << "=> #{$?.exitstatus}\n"
         $?.exitstatus
@@ -43,6 +62,8 @@ module RubyTerminal
       ARGV.clear
       ARGV.concat argv
       load($0)
+    rescue SystemExit, SignalException
+      # ignore
     rescue Exception => e
       $stderr.puts e.message
       $stderr.puts e.backtrace.join("\n")
@@ -51,7 +72,7 @@ module RubyTerminal
     end
 
     def pretty_command(programfile, argv)
-      ([programfile] + argv).collect{|c| c.include?(' ') ? c.inspect : c}.join(' ')
+      ([programfile] + argv).compact.collect{|c| c.include?(' ') ? c.inspect : c}.join(' ')
     end
 
   end

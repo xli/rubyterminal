@@ -5,6 +5,8 @@ require 'ruby_terminal/terminal_output'
 module RubyTerminal
   module Execution
 
+    # The ruby execution script may require 'ert' for execution, use 'ignore_execution_request' status
+    # marker to git rid of 'ert' script control.
     def ignore_execution_request?
       @ignore_execution_request
     end
@@ -13,6 +15,8 @@ module RubyTerminal
       @ignore_execution_request = value
     end
 
+    # Load environment files for Terminal base process
+    # This method take care of git rid of 'ert' script control inside the environment script
     def load_environment(env_files)
       self.ignore_execution_request = true
 
@@ -28,6 +32,21 @@ module RubyTerminal
       end
     end
 
+    # When 'ert' script is loaded, this method would detect RubyTerminal runtime and
+    # take over execution control when it found RubyTerminal runtime
+    # Should give a block to control what's next to do after execution finished inside
+    # RubyTerminal runtime.
+    def execute(progromfile, argv=[], logger=[])
+      input(progromfile, argv) do |input, output|
+        logger << "Running in RubyTerminal (#{running_dir})\n"
+        output.output_until_execution_finished(input, STDOUT)
+        yield if block_given? # for command to execute 'exit'
+      end
+    rescue SignalException
+      # ignore
+    end
+
+    # detect RubyTerminal runtime launching directory
     def running_dir(dir=Dir.pwd)
       return dir if File.exists? File.join(dir, '.terminal.running')
       return nil if dir == File.dirname(dir)
@@ -45,19 +64,6 @@ module RubyTerminal
           input = TerminalInput.write(progromfile, argv)
           yield(input, output) if block_given?
         end
-      end
-    end
-
-    def execute(progromfile, argv, logger=[])
-      input(progromfile, argv) do |input, output|
-        logger << "Running in RubyTerminal (#{running_dir})\n"
-        while(input.executing?) do
-          sleep(0.01)
-          if o = output.read
-            print o
-          end
-        end
-        yield if block_given?
       end
     end
 

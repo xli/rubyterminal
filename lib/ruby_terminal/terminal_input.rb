@@ -9,12 +9,7 @@ module RubyTerminal
 
     def self.get
       return unless File.exists?(full_path)
-      input = TerminalInput.new(File.open(full_path))
-      begin
-        yield input
-      ensure
-        input.destroy
-      end
+      yield TerminalInput.new(File.open(full_path))
     end
 
     def self.write(programfile, argv)

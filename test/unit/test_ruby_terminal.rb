@@ -9,6 +9,7 @@ class TestRubyTerminal < Test::Unit::TestCase
     @test_ruby_terminal_file_path = File.join(base, 'test_ruby_terminal.rb')
     @stderr_output_command_file_path = File.join(base, 'stderr_output_command.rb')
     @output_dollor_zero_command_file_path = File.join(base, 'output_dollor_zero_command.rb')
+    @sleep_for_ever_command_file_path = File.join(base, 'sleep_for_ever_command.rb')
   end
 
   def test_happy_path
@@ -17,8 +18,40 @@ class TestRubyTerminal < Test::Unit::TestCase
         fork do
           loop { break if RubyTerminal.process }
         end
-        RubyTerminal.execute(@test_ruby_terminal_file_path, [])
+        RubyTerminal.execute(@test_ruby_terminal_file_path)
         Process.wait # wait until the forked process finish, otherwize the tests folowing would be failed
+      end
+    end
+  end
+
+  def test_should_destroy_input_command_file_when_execution_is_interrupted
+    with_test_dir do
+      RubyTerminal.start do
+        pid = fork do
+          RubyTerminal.execute(@simple_command_file_path)
+        end
+        sleep 0.1
+        assert File.exists?('.terminal.input')
+        Process.kill("TERM", pid)
+        Process.wait
+        assert !File.exists?('.terminal.input')
+      end
+    end
+  end
+
+  def test_process_should_stop_when_execution_process_is_terminated
+    with_test_dir do
+      RubyTerminal.start do
+        process_pid = fork do
+          loop { break if RubyTerminal.process }
+        end
+        execution_pid = fork do
+          RubyTerminal.execute(@sleep_for_ever_command_file_path)
+        end
+        sleep 0.1
+        Process.kill("TERM", execution_pid)
+        Process.wait execution_pid
+        Process.wait process_pid
       end
     end
   end
@@ -65,7 +98,9 @@ class TestRubyTerminal < Test::Unit::TestCase
       File.open '.terminal.input', 'w' do |file|
         file << @simple_command_file_path
       end
-      RubyTerminal.process
+      RubyTerminal::TerminalOutput.renew do
+        RubyTerminal.process
+      end
       assert !File.exists?('.terminal.input')
     end
   end
