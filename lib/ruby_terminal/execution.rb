@@ -51,9 +51,9 @@ module RubyTerminal
       end
     end
 
-    def execute(progromfile, argv)
+    def execute(progromfile, argv, logger=[])
       input(progromfile, argv) do |input, output|
-        puts "Running in Ruby Terminal"
+        logger << "Running in Ruby Terminal"
         while(File.exists?(input.path)) do
           sleep(0.01)
           if o = output.read

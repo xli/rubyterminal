@@ -9,40 +9,41 @@ module RubyTerminal
       FileUtils.rm_rf '.terminal.running'
     end
 
-    def loop_process(&block)
-      while(true) do
-        process(&block)
+    def loop_process(logger=[])
+      loop do
+        process(logger)
         sleep(0.1)
       end
     end
 
-    def process(&block)
+    def process(logger=[])
       return unless File.exists?('.terminal.input')
       begin
         commands = File.open('.terminal.input') do |file|
           file.read
         end.split("\n")
 
-        puts ">> #{pretty_command(commands)}"
+        logger << ">> #{pretty_command(commands)}"
 
-        fork { do_fork(commands, &block) }
+        fork { do_fork(commands) }
         Process.wait
 
-        puts "=> #{$?.exitstatus}"
+        logger << "=> #{$?.exitstatus}"
+        $?.exitstatus
       ensure
         FileUtils.rm_rf '.terminal.input'
       end
     end
 
     def do_fork(commands)
-      STDOUT.reopen(File.open('.terminal.output', 'w'))
-      STDERR.reopen(File.open('.terminal.output', 'w'))
+      $stdout = File.open('.terminal.output', 'w')
+      STDOUT.reopen($stdout)
+      STDERR.reopen($stdout)
       ARGV.clear
       $0 = commands[0]
       commands[1..-1].each do |arg|
         ARGV << arg.gsub(/\\n/, "\n")
       end
-      yield if block_given?
       load($0)
     rescue Exception => e
       $stderr << e.message

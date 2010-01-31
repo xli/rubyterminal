@@ -9,5 +9,5 @@ end
 RubyTerminal.start do
   puts "Start at #{Dir.pwd}"
   RubyTerminal.load_environment(ARGV)
-  RubyTerminal.loop_process
+  RubyTerminal.loop_process(STDOUT)
 end

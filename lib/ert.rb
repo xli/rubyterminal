@@ -6,6 +6,6 @@ rescue LoadError
   require 'ruby_terminal'
 end
 
-RubyTerminal.execute($0, ARGV) do
+RubyTerminal.execute($0, ARGV, STDOUT) do
   exit
 end

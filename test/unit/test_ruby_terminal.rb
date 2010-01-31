@@ -2,17 +2,14 @@ require File.expand_path(File.dirname(__FILE__) + '/../test_helper')
 
 class TestRubyTerminal < Test::Unit::TestCase
 
-  def test_blank
-    
-  end
   def test_happy_path
     with_test_dir do
       RubyTerminal.start do
-        pid = fork do
-          RubyTerminal.loop_process
+        fork do
+          loop { break if RubyTerminal.process }
         end
-        RubyTerminal.execute(File.dirname(__FILE__) + "/simple_command.rb", [])
-        Process.kill("TERM", pid)
+        RubyTerminal.execute(File.dirname(__FILE__) + "/test_ruby_terminal.rb", [])
+        Process.wait # wait until the forked process finish, otherwize the tests folowing would be failed
       end
     end
   end
@@ -118,7 +115,6 @@ class TestRubyTerminal < Test::Unit::TestCase
         assert output_file
         assert File.exists?(input_file.path)
         assert File.exists?(output_file.path)
-        assert_equal "", output_file.read
       end
     end
   end
@@ -180,31 +176,6 @@ class TestRubyTerminal < Test::Unit::TestCase
       end
     end
   end
-
-  def test_should_yield_block_for_process_in_sub_process
-    with_test_dir do
-      RubyTerminal.start do
-        RubyTerminal.input(File.dirname(__FILE__) + '/simple_command.rb')
-        RubyTerminal.process do
-          puts "process block"
-        end
-        assert_process_output("process block\noutput from simple command")
-      end
-    end
-  end
-
-  # TODO: do we need this?
-  # def test_should_be_able_to_input_while_inside_terminal_sub_process
-  #   with_test_dir do
-  #     RubyTerminal.start do
-  #       RubyTerminal.input(File.dirname(__FILE__) + '/simple_command.rb')
-  #       RubyTerminal.process do
-  #         RubyTerminal.input(File.dirname(__FILE__) + '/simple_command.rb')
-  #       end
-  #       assert_process_output("output from simple command")
-  #     end
-  #   end
-  # end
 
   def assert_process_output(output)
     RubyTerminal.process
