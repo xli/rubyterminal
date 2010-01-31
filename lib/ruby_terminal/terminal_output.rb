@@ -42,6 +42,7 @@ module RubyTerminal
         sleep(0.01)
         if o = self.read
           logger << o
+          logger.flush if logger.respond_to?(:flush)
         end
       end
     ensure
