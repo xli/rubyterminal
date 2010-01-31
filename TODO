@@ -9,6 +9,8 @@
 !write Terminal command file(full path) and read the output to output
 !shutdown process when the '.terminal.input' file is gone
 
-time out? how terminal protects itself
-logger
 require file reload problem
+time out? how terminal protects itself with dead execution?
+logger: acts as a terminal
+test could not run by rake
+
