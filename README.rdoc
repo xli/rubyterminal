@@ -51,14 +51,21 @@ My project got problem with spending too much time to wait for rails test proces
 My test just need 1 sec to run, but the process need 3 sec to launch. As many time as I
 run my test, as much time as I waste on waiting on launching the process.
 
-Setup my project by adding one line code into first line code of test_helper.rb
+As a big project, it's environment probably is complicated, you should have a config/environment.rb
+to setup your Rails project environment as you need, but it maybe not what you want to
+cache in RubyTerminal, because there maybe lot of models has been loaded and cache those
+classes may cause you restart RubyTerminal again and again.
+So, I need provide a new config/const_environment.rb to describe everything my project need
+and no need to reload while I am running tests in development usually. And then require it
+at first line in config/environment.rb.
+Also, I added the following code as first line code of config/const_environment.rb
 
   require 'ert'
 
-Then, start RubyTerminal in my project root directory with my test environment file test_helper.rb
+Then, start RubyTerminal in my project root directory with my config/const_environment.rb
 when I am developing.
 
-  rt test/test_helper.rb
+  rt config/const_environment.rb
 
 Done. Develop as usual.
 
@@ -66,22 +73,14 @@ Done. Develop as usual.
 
 As RubyTerminal loads your ruby environment script as cache, and forks a new process to execute
 you ruby script, anything loaded by your ruby environment script would not be reloaded unless you
-do it in your ruby execution script. For example, your 'test/test_helper.rb' probably has the following
-code:
+do it in your ruby execution script. For example, if you load your 'test/test_helper.rb' in
+RubyTerminal 'rt test/test_helper.rb', and if your test_helper.rb loads some project model, for
+example, we want messaging model be disabled in test:
 
-  require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
+  Messaging.disable
 
-So, any change in side your config/environment.rb would not be reloaded in RubyTerminal. In this
-case, you should restart RubyTerminal to launch new environment.
-
-And for the way how 'require' works in ruby, I highly recommend you require all file in same file path
-format. For example, if you require your 'config/environment.rb' as above, and use the following code
-to require it again in your ruby execution script:
-
-  require 'config/environment'
-
-You would cause the 'config/environment.rb' to be reloaded inside your ruby execution script, which
-may cause you wait for long time launching the process.
+Then nay change inside Messaging model would not be reloaded in RubyTerminal. In this case,
+you'll need to restart RubyTerminal to launch new environment.
 
 = Other stuff
 
