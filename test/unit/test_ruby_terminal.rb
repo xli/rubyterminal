@@ -1,4 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../test_helper')
+require File.dirname(__FILE__) + '/../../lib/ruby_terminal/terminal'
+require File.dirname(__FILE__) + '/../../lib/ruby_terminal/execution'
+require File.dirname(__FILE__) + '/../../lib/ruby_terminal.rb'
 
 class TestRubyTerminal < Test::Unit::TestCase
 
