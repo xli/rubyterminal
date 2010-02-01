@@ -57,7 +57,10 @@ module RubyTerminal
       $stdout = TerminalOutput.open_for_write
       STDOUT.reopen($stdout)
       STDERR.reopen($stdout)
-      $0 = programfile
+      $_0 = programfile
+      alias $__0 $0
+      alias $0 $_0
+
       ARGV.clear
       ARGV.concat argv
       load($0)
