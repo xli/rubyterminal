@@ -14,9 +14,9 @@ Start RubyTerminal by the following command after installed rubyterminal gem:
 
 After RubyTerminal started, it will create a '.terminal.running' file to mark it's launching
 directory, the file would be deleted after RubyTerminal shutdown. 
-Then RubyTerminal starts look for a file called '.terminal.input' in it's launching directory
+Then RubyTerminal starts look for a file named '.terminal.input' in it's launching directory
 and read it's content as command to execute in a forked process. The output of command
-execution would be put into another file called '.terminal.output' in the same directory.
+execution would be put into another file named '.terminal.output' in the same directory.
 
 There are two model to create a '.terminal.input' by RubyTerminal, one is a command could be
 used in a terminal called 'ert', another one is a ruby file could be loaded in a ruby script.
@@ -33,6 +33,9 @@ current script execution command and arguments, then wait for execution output a
 when the '.terminal.input' file gone, which is deleted by the RubyTerminal usually after
 the execution finished.
 
+If it does not find RubyTerminal, nothing happens and your ruby script would be run as
+normal.
+
 === Execute ruby script in RubyTerminal by a terminal ert command
 
 ert has same usage with ruby expect you should not type in 'ruby', for example:
@@ -45,29 +48,37 @@ directory:
   You RubyTerminal may launch at /User/xx/project
   You could run ert at /User/xx/project/test/unit
 
-== Working Example:
-
-My project got problem with spending too much time to wait for rails test process starts.
-My test just need 1 sec to run, but the process need 3 sec to launch. As many time as I
-run my test, as much time as I waste on waiting on launching the process.
-
-As a big project, it's environment probably is complicated. You should have a config/environment.rb
-to setup your Rails project environment as you need, but it maybe not all what you want to
-cache in RubyTerminal, because there maybe lot of models have been loaded, and cache those
-classes may cause you restart RubyTerminal again and again during development.
-
-So, I think it's better to provide an independent environment initialization script called
-'test_const_environment.rb' inside 'test' directory. It requires everything could be cached
-for my test while I am running tests in development usually. There maybe some duplication
-with config/environment.rb, you could do some refactoring to get it better.
-Also, I added the following code as first line code of test/test_const_environment.rb
+When you use 'ert' in terminal, there is no need to add code:
 
   require 'ert'
 
-Then, start RubyTerminal in my project root directory with my test/test_const_environment.rb
-when I am developing.
+inside your project, otherwise you just use 'ruby' in terminal is OK.
 
-  rt test/test_const_environment.rb
+== Working Example:
+
+My project got problem with spending too much time to wait for rails test process starts.
+My test just need 1 sec to run, but the process need 5 sec to launch. As many time as I
+run my test, as much time as I waste on waiting on launching the process.
+
+To setup using RubyTerminal cleanly, I created a new ruby script called 'test_environment.rb'
+as my project's RubyTerminal environment initializer inside the 'test' directory with
+the following code:
+
+  ENV["RAILS_ENV"] = "test"
+  require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
+
+Then add the following code at the very top of 'test/test_helper.rb':
+
+  require 'rubygems' # unless you didn't install ruby_terminal from gem
+  # Define reload paths as you need here, default value is ['app', 'lib'], usually you don't
+  # need change the default value. We'll talk more about it at Limitation paragraph below.
+  # RELOAD_PATHS = ['app', 'lib']
+  require 'ert'
+
+Then, start RubyTerminal in my project root directory with test/test_environment.rb while
+developing.
+
+  rt test/test_environment.rb
 
 Done. Develop as usual.
 
@@ -76,13 +87,29 @@ Done. Develop as usual.
 As RubyTerminal loads your ruby environment script as cache, and forks a new process to execute
 you ruby script, anything loaded by your ruby environment script would not be reloaded unless you
 do it in your ruby execution script. For example, if you load your 'test/test_helper.rb' in
-RubyTerminal 'rt test/test_helper.rb', and if your test_helper.rb loads some project model, for
-example, we want messaging model be disabled in test:
+RubyTerminal 'rt test/test_helper.rb', and your test_helper.rb loads some ruby files, for
+example:
 
-  Messaging.disable
+  require 'messaging'
 
-Then nay change inside Messaging model would not be reloaded in RubyTerminal. In this case,
-you'll need to restart RubyTerminal to launch new environment.
+Then any change inside 'messaging' would not be reloaded in RubyTerminal. You'll need to restart
+RubyTerminal or write some script in your test_helper.rb to reload 'messaging'.
+
+As Rails project would load all your models, controllers, helpers and libs as cache in test model,
+RubyTerminal will reload all files inside 'RAILS_ROOT/app' and 'RAILS_ROOT/lib' as default after
+you required 'ert' (Do same thing when you use 'ert' in terminal). You could define a const
+RELOAD_PATHS to replace the default reload paths.
+
+If you want to take care of reloading some source files by yourself, you could take a look at
+'ruby_terminal/reloader', which could help your reload source files easier.
+
+Make sure you do reload source work or define RELOAD_PATHS for you rails project before code:
+
+  require 'ert'
+
+== Credits
+
+[<b>rails-test-serving</b>] For showing me how to clean up rails project environment.
 
 = Other stuff
 

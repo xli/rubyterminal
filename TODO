@@ -16,3 +16,5 @@ allow user to input in terminal?
 test: require file reload problem
 how about command has "\\n"
 how to integrate with rake? needed?
+
+when there is no RubyTerminal found by ert, output something
