@@ -24,11 +24,12 @@ module RubyTerminal
         puts "Warning: are you sure you don't need to load any ruby script to initialize environment?"
         puts "Usage: rt <ruby_environment_script>"
       else
+        start_at = Time.now
         env_files.each do |env_file|
           puts "require #{File.expand_path(env_file).inspect}"
           require File.expand_path(env_file)
         end
-        puts "Environment loaded"
+        puts "Environment loaded in #{Time.now - start_at} seconds"
       end
     end
 

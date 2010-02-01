@@ -11,8 +11,9 @@
 !give a warning when start rt without ruby environment script
 !a command line execution solution: ert test/unit/xx_test.rb
 !time out? how terminal protects itself with dead execution?
+!show launching time: we could more easy to know how much time saved
 
-show launching time: we could more easy to know how much time saved
+use 'rt --rails' to start at rails project root directory, detect config/environment
 rails will load all class in it's initializer in environment, do something for it
 allow user to input in terminal?
 test: require file reload problem
