@@ -84,6 +84,8 @@ Done. Develop as usual.
 
 == Limitation
 
+=== Initialization of environment
+
 As RubyTerminal loads your ruby environment script as cache, and forks a new process to execute
 you ruby script, anything loaded by your ruby environment script would not be reloaded unless you
 do it in your ruby execution script. For example, if you load your 'test/test_helper.rb' in
