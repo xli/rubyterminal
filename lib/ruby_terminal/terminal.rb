@@ -6,7 +6,7 @@ module RubyTerminal
 
     # A terminal is started from here.
     # Start method takes care of terminal running status marker
-    # and ignores SystemExit and SignalException for output
+    # and ignores SignalException for clean output
     def start
       FileUtils.touch '.terminal.running'
       yield if block_given?
