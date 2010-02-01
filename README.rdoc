@@ -71,7 +71,8 @@ Then add the following code at the very top of 'test/test_helper.rb':
 
   require 'rubygems' # unless you didn't install ruby_terminal from gem
   # Define reload paths as you need here, default value is ['app', 'lib'], usually you don't
-  # need change the default value. We'll talk more about it at Limitation paragraph below.
+  # need change the default value, and you must launch RubyTerminal in the root directory of
+  # your Rails project. We'll talk more about it at Limitation paragraph below.
   # RELOAD_PATHS = ['app', 'lib']
   require 'ert'
 
@@ -81,6 +82,13 @@ developing.
   rt test/test_environment.rb
 
 Done. Develop as usual.
+
+For the test/test_environment.rb, RubyTerminal provides an option --rails_test to let you
+just do it with RubyTerminal without creating new file:
+
+  rt --rails_test
+
+Code above will do exactly same with test_environment.rb above.
 
 == Limitation
 
@@ -105,7 +113,7 @@ RELOAD_PATHS to replace the default reload paths.
 If you want to take care of reloading some source files by yourself, you could take a look at
 'ruby_terminal/reloader', which could help your reload source files easier.
 
-Make sure you do reload source work or define RELOAD_PATHS for you rails project before code:
+Make sure you do reload source work or define RELOAD_PATHS for your Rails project before code:
 
   require 'ert'
 
