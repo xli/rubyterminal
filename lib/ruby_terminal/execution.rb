@@ -23,9 +23,18 @@ module RubyTerminal
       if env_files.nil? || env_files.empty?
         puts "Warning: are you sure you don't need to load any ruby script to initialize environment?"
         puts "Usage: rt <ruby_environment_script>"
+        puts "Option: --rails_test        set ENV[\"RAILS_ENV\"] = \"test\" and load config/environment"
+        puts "                            must run in root directory of Rails project"
       else
         start_at = Time.now
         env_files.each do |env_file|
+          if env_file == '--rails_test'
+            env_file = File.expand_path("config/environment.rb")
+
+            raise "Could not find #{env_file.inspect}. You must start RubyTerminal in the root directory of rails project when you use '--rails' option" unless File.exists?(env_file)
+            ENV["RAILS_ENV"] = "test"
+          end
+
           puts "require #{File.expand_path(env_file).inspect}"
           require File.expand_path(env_file)
         end

@@ -13,4 +13,8 @@ RubyTerminal.start do
   RubyTerminal.load_environment(ARGV)
   RubyTerminal.loop_process(STDOUT)
 end
+ARGV.clear
+if defined?(Test::Unit)
+  Test::Unit.run = true
+end
 puts ''
