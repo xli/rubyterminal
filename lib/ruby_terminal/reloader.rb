@@ -9,7 +9,7 @@ module RubyTerminal
 
       $".replace($" - reload_file_paths)
 
-      reload_file_paths.{ |file_path| require file_path }
+      reload_file_paths.each { |file_path| require file_path }
     end
   end
 end

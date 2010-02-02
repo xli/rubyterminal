@@ -7,7 +7,7 @@ rescue LoadError
 end
 
 if defined?(RAILS_ROOT)
-  require 'ruby_terminal/clean_rails'
+  require 'ruby_terminal/rails_project_environment'
   RubyTerminal::RailsProjectEnvironment.reload
 end
 
