@@ -7,4 +7,8 @@ module RubyTerminal
   VERSION = '1.0.0'
   extend Terminal
   extend Execution
+
+  def self.options
+    @options ||= {:reload_paths => [], :rails_test => false}
+  end
 end

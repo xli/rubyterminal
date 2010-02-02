@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'ruby_terminal/terminal_input'
+require 'ruby_terminal/reloader'
 
 module RubyTerminal
   module Terminal
@@ -8,11 +9,14 @@ module RubyTerminal
     # Start method takes care of terminal running status marker
     # and ignores SignalException for clean output
     def start
+      alias $__0 $0
       FileUtils.touch '.terminal.running'
       yield if block_given?
     rescue SignalException
       # ignore
     ensure
+      ARGV.clear
+      alias $0 $__0
       FileUtils.rm_rf '.terminal.running'
     end
 
@@ -58,11 +62,16 @@ module RubyTerminal
       STDOUT.reopen($stdout)
       STDERR.reopen($stdout)
       $_0 = programfile
-      alias $__0 $0
       alias $0 $_0
 
       ARGV.clear
       ARGV.concat argv
+
+      Reloader.reload_source_files
+
+      if RubyTerminal.options[:rails_test]
+        RubyTerminal::RailsProjectEnvironment.reload
+      end
       load($0)
     rescue SystemExit, SignalException
       # ignore

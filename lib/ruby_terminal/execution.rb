@@ -30,16 +30,25 @@ module RubyTerminal
         env_files.each do |env_file|
           if env_file == '--rails_test'
             env_file = File.expand_path("config/environment.rb")
-
-            raise "Could not find #{env_file.inspect}. You must start RubyTerminal in the root directory of rails project when you use '--rails' option" unless File.exists?(env_file)
+            unless File.exists?(env_file)
+              puts "Warning: Could not find #{env_file.inspect}, --rails_test option is ignored"
+              puts "Warning: You must start RubyTerminal in the root directory of a rails project when you turn on '--rails_test' option"
+              next
+            end
             ENV["RAILS_ENV"] = "test"
+            require_with_log('ruby_terminal/rails_project_environment')
+            RubyTerminal.options[:rails_test] = true
+            RubyTerminal.options[:reload_paths] << "lib" << "app"
           end
-
-          puts "require #{File.expand_path(env_file).inspect}"
-          require File.expand_path(env_file)
+          require_with_log(File.expand_path(env_file))
         end
         puts "Environment loaded in #{Time.now - start_at} seconds"
       end
+    end
+
+    def require_with_log(file)
+      puts "require #{file.inspect}"
+      require file
     end
 
     # When 'ert' script is loaded, this method would detect RubyTerminal runtime and

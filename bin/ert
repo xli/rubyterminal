@@ -8,6 +8,7 @@ end
 
 programfile = ARGV.shift
 RubyTerminal.execute(programfile, ARGV, STDOUT) do
-  exit
+  exit! # we don't want any other at_exit block happens like Test::Unit does
 end
+# when RubyTerminal was not detected, let the programfile run as normal
 require programfile
