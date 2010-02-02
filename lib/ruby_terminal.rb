@@ -12,3 +12,5 @@ module RubyTerminal
     @options ||= {:reload_paths => [], :rails_test => false}
   end
 end
+
+RubyTerminal.options[:loaded_at] = Time.now
