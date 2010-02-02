@@ -1,6 +1,5 @@
 require 'fileutils'
 require 'ruby_terminal/terminal_input'
-require 'ruby_terminal/reloader'
 
 module RubyTerminal
   module Terminal
@@ -67,11 +66,14 @@ module RubyTerminal
       ARGV.clear
       ARGV.concat argv
 
-      Reloader.reload_source_files
+      require 'ruby_terminal/reloader'
+      RubyTerminal::Reloader.reload_source_files
 
       if RubyTerminal.options[:rails_test]
+        require 'ruby_terminal/rails_project_environment'
         RubyTerminal::RailsProjectEnvironment.reload
       end
+
       load($0)
     rescue SystemExit, SignalException
       # ignore

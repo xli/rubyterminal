@@ -36,9 +36,8 @@ module RubyTerminal
               next
             end
             ENV["RAILS_ENV"] = "test"
-            require_with_log('ruby_terminal/rails_project_environment')
             RubyTerminal.options[:rails_test] = true
-            RubyTerminal.options[:reload_paths] << "lib" << "app"
+            RubyTerminal.options[:reload_paths] << "app" << "lib"
           end
           require_with_log(File.expand_path(env_file))
         end

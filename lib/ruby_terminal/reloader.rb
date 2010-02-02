@@ -12,15 +12,13 @@ module RubyTerminal
     # remove all files from $" inside the +reload_path_roots+
     # and then require the removed files again
     def reload_files_in(reload_path_roots)
-      unload_files_in(reload_path_roots).each { |file_path| require file_path }
-    end
-    def unload_files_in(unload_path_roots)
-      unload_file_paths = $".select do |path|
-        unload_path_roots.any? { |matcher| /^#{matcher}\// =~ path }
+      reload_file_paths = $".select do |path|
+        reload_path_roots.any? { |matcher| /^#{matcher}\// =~ path }
       end
 
-      $".replace($" - unload_file_paths)
-      unload_file_paths
+      $".replace($" - reload_file_paths)
+
+      reload_file_paths.each { |file_path| require file_path }
     end
   end
 end
