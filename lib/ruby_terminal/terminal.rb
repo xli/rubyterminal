@@ -66,12 +66,12 @@ module RubyTerminal
       ARGV.clear
       ARGV.concat argv
 
-      require 'ruby_terminal/reloader'
-      RubyTerminal::Reloader.reload_modified_source_files
-
       if RubyTerminal.options[:rails_test]
         require 'ruby_terminal/rails_project_environment'
         RubyTerminal::RailsProjectEnvironment.reload
+      else
+        require 'ruby_terminal/reloader'
+        RubyTerminal::Reloader.reload_modified_source_files
       end
 
       load($0)
