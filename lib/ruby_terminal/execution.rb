@@ -37,9 +37,12 @@ module RubyTerminal
             end
             ENV["RAILS_ENV"] = "test"
             RubyTerminal.options[:rails_test] = true
-            RubyTerminal.options[:reload_paths] << "app" << "lib"
+            require_with_log File.expand_path(env_file)
+            require_with_log 'ruby_terminal/rails_project_environment'
+            RubyTerminal::RailsProjectEnvironment.cleanup
+          else
+            require_with_log(File.expand_path(env_file))
           end
-          require_with_log(File.expand_path(env_file))
         end
         puts "Environment loaded in #{Time.now - start_at} seconds"
       end

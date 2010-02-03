@@ -1,4 +1,5 @@
 module RubyTerminal
+  # Not sure we need this module for non-rails project
   module Reloader
     extend self
 

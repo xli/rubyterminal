@@ -67,7 +67,6 @@ module RubyTerminal
       ARGV.concat argv
 
       if RubyTerminal.options[:rails_test]
-        require 'ruby_terminal/rails_project_environment'
         RubyTerminal::RailsProjectEnvironment.reload
       else
         require 'ruby_terminal/reloader'

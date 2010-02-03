@@ -3,11 +3,43 @@ module RubyTerminal
   module RailsProjectEnvironment
     extend self
 
+    # reload before sub process start
     def reload
-      setup_dependencies_mechanism_as_load
+      action_controller_dispatcher.reload_application
+    end
+
+    # cleanup rails environment for terminal process
+    # we'll mark all reloadable const (Module/Class) unload,
+    # so that sub process could start with fresh one
+    def cleanup
+      RubyTerminal.options[:reload_paths] << "app" << "lib"
       RubyTerminal.with_reload_paths do |paths|
-        reload_modified_files_in(paths)
+        mark_const_unloadable_in(paths)
       end
+      action_controller_dispatcher.cleanup_application
+    end
+
+    def action_controller_dispatcher
+      ActionController::Dispatcher.respond_to?(:cleanup_application) ? ActionController::Dispatcher : ActionController::Dispatcher.new(StringIO.new)
+    end
+
+    def mark_const_unloadable_in(reload_path_roots)
+      reload_file_paths = $".select do |path|
+        reload_path_roots.any? { |matcher| /^#{matcher}\// =~ path }
+      end.uniq.sort
+
+      reload_file_paths.each do |file_path|
+        const_desc = to_const_desc(file_path)
+        
+        if valid_const_desc?(const_desc)
+          unloadable(const_desc)
+        end
+      end
+    end
+
+    def valid_const_desc?(const_desc)
+      eval("defined? #{const_desc}")
+    rescue Exception
     end
 
     def to_const_desc(file_path)
@@ -24,27 +56,8 @@ module RubyTerminal
       end
     end
 
-    def reload_modified_files_in(reload_path_roots)
-      reload_file_paths = $".select do |path|
-        reload_path_roots.any? { |matcher| /^#{matcher}\// =~ path }
-      end.select do |path|
-        File.mtime(path) > RubyTerminal.options[:loaded_at]
-      end
-
-      reload_file_paths.each do |file_path|
-        const_desc = to_const_desc(file_path)
-        if unloadable(const_desc)
-          #todo: only output in debug mode
-          puts "RubyTerminal marked #{const_desc} as unloadable"
-        end
-      end
-
-      dispatcher = ActionController::Dispatcher.respond_to?(:cleanup_application) ? ActionController::Dispatcher : ActionController::Dispatcher.new(StringIO.new)
-
-      dispatcher.cleanup_application
-      dispatcher.reload_application
-    end
-
+    # todo: remove this method, it seems, change mechanism does not help, and causes reload class
+    # problem
     def setup_dependencies_mechanism_as_load
       dependencies = defined?(Dependencies) ? Dependencies : ActiveSupport::Dependencies
       dependencies.mechanism = :load
