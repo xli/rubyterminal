@@ -12,7 +12,6 @@ module RubyTerminal
 
     def to_const_desc(file_path)
       load_path = detect_closest_load_path(file_path)
-      puts "load_path: #{load_path}"
       file_path.gsub(/^#{load_path}/, '').gsub(/\.rb$/, '').camelize
     end
 
@@ -34,8 +33,10 @@ module RubyTerminal
 
       reload_file_paths.each do |file_path|
         const_desc = to_const_desc(file_path)
-        unloadable(const_desc)
-        puts "marked #{const_desc} as unloadable: #{file_path.inspect}"
+        if unloadable(const_desc)
+          #todo: only output in debug mode
+          puts "RubyTerminal marked #{const_desc} as unloadable"
+        end
       end
 
       dispatcher = ActionController::Dispatcher.respond_to?(:cleanup_application) ? ActionController::Dispatcher : ActionController::Dispatcher.new(StringIO.new)

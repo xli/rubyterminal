@@ -15,11 +15,10 @@
 !use 'rt --rails' to start at rails project root directory, detect config/environment
 !rails will load all class in it's initializer in environment, do something for it
 !when there is no RubyTerminal found by ert, output something
+!fix exit problem in 1.8.7 for test::unit
+!use RubyTerminal.options instead of const and global variable: RELOAD_PATHS and rails_test_option_is_on
 
-fix exit problem in 1.8.7 for test::unit
-use RubyTerminal.options instead of const and global variable: RELOAD_PATHS and rails_test_option_is_on
-
+run RubyTerminal in debug mode, so that we could have some output for debuging problems
 allow user to input in terminal?
 how about command has "\\n"
 how to integrate with rake? needed?
-
