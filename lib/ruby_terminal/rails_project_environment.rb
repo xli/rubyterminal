@@ -28,6 +28,9 @@ module RubyTerminal
         reload_path_roots.any? { |matcher| /^#{matcher}\// =~ path }
       end.uniq.sort
 
+      # must remove reload_file_paths from $", otherwize we'll get wild exception
+      $".replace($" - reload_file_paths)
+
       reload_file_paths.each do |file_path|
         const_desc = to_const_desc(file_path)
         
