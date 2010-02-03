@@ -18,6 +18,8 @@ module RubyTerminal
         File.mtime(path) > RubyTerminal.options[:loaded_at]
       end
 
+      $".replace($" - reload_file_paths)
+
       reload_file_paths.each do |file_path|
         load file_path
         puts "reloaded #{file_path.inspect}"
