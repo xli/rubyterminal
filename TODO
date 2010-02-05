@@ -19,6 +19,10 @@
 !use RubyTerminal.options instead of const and global variable: RELOAD_PATHS and rails_test_option_is_on
 
 run RubyTerminal in debug mode, so that we could have some output for debuging problems
+
+When rails project loads specific stuff in initializer for test environment, we may not fix it when reload the model
+When rails project attach new behaviours by open class directly, we may not fix it when reload the model
+
 allow user to input in terminal?
 how about command has "\\n"
 how to integrate with rake? needed?

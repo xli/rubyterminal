@@ -12,7 +12,7 @@ module RubyTerminal
     # we'll mark all reloadable const (Module/Class) unload,
     # so that sub process could start with fresh one
     def cleanup
-      RubyTerminal.options[:reload_paths] << "app" << "lib"
+      RubyTerminal.options[:reload_paths] << "app" << "lib" << "test"
       RubyTerminal.with_reload_paths do |paths|
         mark_const_unloadable_in(paths)
       end
@@ -24,12 +24,16 @@ module RubyTerminal
     end
 
     def mark_const_unloadable_in(reload_path_roots)
-      reload_file_paths = $".select do |path|
+      reload_file_paths = dependencies.loaded.select do |path|
         reload_path_roots.any? { |matcher| /^#{matcher}\// =~ path }
       end.uniq.sort
 
       # must remove reload_file_paths from $", otherwize we'll get wild exception
-      $".replace($" - reload_file_paths)
+      # for rails may load all ruby files inside project as cache, so we need find
+      # out all files need to be unload instead of searching from +reload_file_paths+,
+      # which is based on active support const missing.
+      paths = $".select { |path| reload_path_roots.any? { |matcher| /^#{matcher}\// =~ path }}
+      $".replace($" - paths)
 
       reload_file_paths.each do |file_path|
         const_desc = to_const_desc(file_path)
@@ -62,8 +66,10 @@ module RubyTerminal
     # todo: remove this method, it seems, change mechanism does not help, and causes reload class
     # problem
     def setup_dependencies_mechanism_as_load
-      dependencies = defined?(Dependencies) ? Dependencies : ActiveSupport::Dependencies
       dependencies.mechanism = :load
+    end
+    def dependencies
+      defined?(Dependencies) ? Dependencies : ActiveSupport::Dependencies
     end
   end
 end
